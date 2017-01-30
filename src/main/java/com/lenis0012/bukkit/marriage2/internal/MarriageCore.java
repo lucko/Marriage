@@ -12,12 +12,14 @@ import com.lenis0012.bukkit.marriage2.internal.data.DataConverter;
 import com.lenis0012.bukkit.marriage2.internal.data.DataManager;
 import com.lenis0012.bukkit.marriage2.internal.data.MarriageData;
 import com.lenis0012.bukkit.marriage2.internal.data.MarriagePlayer;
-import com.lenis0012.bukkit.marriage2.listeners.*;
+import com.lenis0012.bukkit.marriage2.listeners.ChatListener;
+import com.lenis0012.bukkit.marriage2.listeners.DatabaseListener;
+import com.lenis0012.bukkit.marriage2.listeners.KissListener;
+import com.lenis0012.bukkit.marriage2.listeners.PlayerListener;
+import com.lenis0012.bukkit.marriage2.listeners.PlotSquaredListener;
 import com.lenis0012.bukkit.marriage2.misc.ListQuery;
 import com.lenis0012.pluginutils.modules.configuration.ConfigurationModule;
-import com.lenis0012.updater.api.ReleaseType;
-import com.lenis0012.updater.api.Updater;
-import com.lenis0012.updater.api.UpdaterFactory;
+
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -31,7 +33,6 @@ import java.util.logging.Level;
 public class MarriageCore extends MarriageBase {
     private final Map<UUID, MarriagePlayer> players = Collections.synchronizedMap(new HashMap<UUID, MarriagePlayer>());
     private DataManager dataManager;
-    private Updater updater;
     private Dependencies dependencies;
 
     public MarriageCore(MarriagePlugin plugin) {
@@ -85,7 +86,6 @@ public class MarriageCore extends MarriageBase {
         register(new ChatListener(this));
         register(new DatabaseListener(this));
         register(new KissListener(this));
-        register(new UpdateListener(this));
         if(Settings.PLOTSQUARED_AUTO_TRUST.value() && Bukkit.getPluginManager().isPluginEnabled("PlotSquared")) {
             Plugin plotSquared = Bukkit.getPluginManager().getPlugin("PlotSquared");
             getLogger().log(Level.INFO, "Hooking with PlotSquared v" + plotSquared.getDescription().getVersion());
@@ -98,13 +98,6 @@ public class MarriageCore extends MarriageBase {
         for(Class<? extends Command> command : findClasses("com.lenis0012.bukkit.marriage2.commands", Command.class)) {
             register(command);
         }
-    }
-
-    @Register(name = "updater", type = Type.ENABLE, priority = 9)
-    public void loadUpdater() {
-        UpdaterFactory factory = new UpdaterFactory(plugin, "com.lenis0012.bukkit.marriage2.libs.updater");
-        this.updater = factory.newUpdater(plugin.getPluginFile(), Settings.ENABLE_UPDATE_CHACKER.value());
-        updater.setChannel(ReleaseType.valueOf(Settings.UPDATER_CHANNEL.value().toUpperCase()));
     }
 
     @Register(name = "converter", type = Register.Type.ENABLE, priority = 10)
@@ -167,10 +160,6 @@ public class MarriageCore extends MarriageBase {
 
     public DataManager getDataManager() {
         return dataManager;
-    }
-
-    public Updater getUpdater() {
-        return updater;
     }
 
     public void removeMarriage(final MData mdata) {

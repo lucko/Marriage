@@ -33,7 +33,7 @@ public abstract class Command {
         this.marriage = marriage;
         this.aliases = Lists.asList(command, aliases).toArray(new String[0]);
         if(this.aliases.length > 0) {
-            this.permission = Permissions.getByNode("marry." + aliases[0]);
+            this.permission = Permissions.getByNode("marry." + this.aliases[0]);
         }
     }
 
